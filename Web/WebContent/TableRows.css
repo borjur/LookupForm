@@ -1,0 +1,38 @@
+body
+{
+	font-family:Georgia, "Times New Roman", Times, serif;
+	color:#000066;
+}
+
+h1
+{
+	font-size:16pt;
+	text-align:center;
+}
+
+#Table
+{
+	width: 360px;
+	margin-left:-175px;
+	position:relative;
+	left:50%;
+	border:1px solid #000066;
+}
+
+#Table tbody td 
+{
+	border:1px solid #000066;
+	width:120px;
+	text-align:center;
+}
+
+#Table tfoot td form
+{
+	text-align:center;
+	margin:0px;
+}
+
+#Table tfoot td form input
+{
+	margin: 0px 5px 0px 5px;
+}

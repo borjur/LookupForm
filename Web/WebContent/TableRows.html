@@ -1,0 +1,214 @@
+<html>
+
+<head>
+<title>Table Rows</title>
+<link href="TableRows.css" type="text/css" rel="stylesheet"/>
+<script language="javascript" src="prototype.js"></script>
+<script language="javascript">
+
+//WRITE YOUR CODE HERE.
+
+var CurRow=1;
+var NumRows = 10;
+var RowsToShow = 3;
+var PrevRowsReady = false;
+var NextRowsReady = false;
+var CurRowsLoaded = false;
+var tbodyPrev, tbodyCur, tbodyNext,buttonPrev,buttonNext;
+
+function init()
+{
+  document.getElementById("PrevButton").onclick=PrevRows;
+  document.getElementById("NextButton").onclick=NextRows;
+  document.getElementById("TotalRowsNum").innerHTML = NumRows;
+  tbodyPrev = document.getElementById("PrevRows");
+  tbodyCur = document.getElementById("CurRows");
+  tbodyNext = document.getElementById("NextRows");
+  buttonPrev = document.getElementById("PrevButton");
+  buttonNext = document.getElementById("NextButton");
+  GetRows();
+}
+
+function PrevRows()
+{
+  if (CurRow > 1)
+  {
+    CurRow-=RowsToShow;
+    if (PrevRowsReady)
+    {
+      for (var i=tbodyCur.rows.length-1; i>=0; i--)
+      {
+        tbodyCur.replaceChild(tbodyPrev.childNodes[i],tbodyCur.childNodes[i]);
+      }
+      PrevRowsReady=false;
+      CurRowsLoaded=true;
+    }
+    buttonPrev.disabled=true;
+    GetRows();
+  }
+}
+
+function NextRows()
+{
+  if (CurRow <= NumRows-RowsToShow)
+  {
+    CurRow+=RowsToShow;
+    if (NextRowsReady)
+    {
+      for (var i=tbodyCur.rows.length-1; i>=0; i--)
+      {
+        tbodyCur.replaceChild(tbodyNext.childNodes[i],tbodyCur.childNodes[i]);
+      }
+      NextRowsReady=false;
+      CurRowsLoaded=true;
+    }
+    buttonNext.disabled=true;
+    GetRows();
+  }
+}
+
+function GetRows()
+{
+  document.getElementById("CurRowStart").innerHTML=CurRow;
+  document.getElementById("CurRowEnd").innerHTML=CurRow+RowsToShow-1;
+
+  new Ajax.Request("TableRows.jsp",
+  {
+    method: "get",
+    parameters: "Row=" + CurRow + "&RowsToShow=" + RowsToShow,
+    onComplete: ChangeRows
+  });
+}
+
+function ChangeRows(REQ)
+{
+  var docElem = REQ.responseXML.documentElement;
+  var prevRowsNodes = new Array();
+  var curRowsNodes = new Array();
+  var nextRowsNodes = new Array();
+  if (CurRow == 1)
+  {
+    prevRowsNodes = null;
+    for (var i=0; i<RowsToShow; i++)
+    {
+      curRowsNodes[i] = docElem.childNodes[i];
+    }
+    for (var i=0; i<RowsToShow; i++)
+    {
+      nextRowsNodes[i] = docElem.childNodes[i+RowsToShow];
+    }
+    NextRowsReady=true;
+    PrevRowsReady=false;
+  }
+  else if (CurRow == NumRows-RowsToShow+1)
+  {
+    for (var i=0; i<RowsToShow; i++)
+    {
+      prevRowsNodes[i] = docElem.childNodes[i];
+    }
+    for (var i=0; i<RowsToShow; i++)
+    {
+      curRowsNodes[i] = docElem.childNodes[i+RowsToShow];
+    }
+    nextRowsNodes = null;
+    PrevRowsReady=true;
+    NextRowsReady=false;
+  }
+  else
+  {
+    for (var i=0; i<RowsToShow; i++)
+    {
+      prevRowsNodes[i] = docElem.childNodes[i];
+    }
+    for (var i=0; i<RowsToShow; i++)
+    {
+      curRowsNodes[i] = docElem.childNodes[i+RowsToShow];
+    }
+    for (var i=0; i<RowsToShow; i++)
+    {
+      nextRowsNodes[i] = docElem.childNodes[i+(RowsToShow*2)];
+    }
+    PrevRowsReady=true;
+    NextRowsReady=true;
+  }
+
+  /*Loads the HTML Rows*/
+  if (!CurRowsLoaded)
+  {
+    for (var i=0; i<RowsToShow; i++)
+    {
+      var tr = tbodyCur.insertRow(i);
+      var tdPres = tr.insertCell(0);
+      tdPres.innerHTML = curRowsNodes[i].childNodes[0].firstChild.nodeValue;
+      var tdYears = tr.insertCell(1);
+      tdYears.innerHTML = curRowsNodes[i].childNodes[1].firstChild.nodeValue;
+      var tdImage = tr.insertCell(2);
+      tdImage.innerHTML = "<img src='Slides/" + curRowsNodes[i].childNodes[2].firstChild.nodeValue + "'/>";
+    }
+  }
+
+  if (prevRowsNodes)
+  {
+    for (var i=0; i<RowsToShow; i++)
+    {
+      if (tbodyPrev.childNodes[i]) tbodyPrev.deleteRow(i);
+      var tr = tbodyPrev.insertRow(i);
+      var tdPres = tr.insertCell(0);
+      tdPres.innerHTML = prevRowsNodes[i].childNodes[0].firstChild.nodeValue;
+      var tdYears = tr.insertCell(1);
+      tdYears.innerHTML = prevRowsNodes[i].childNodes[1].firstChild.nodeValue;
+      var tdImage = tr.insertCell(2);
+      tdImage.innerHTML = "<img src='Slides/" + prevRowsNodes[i].childNodes[2].firstChild.nodeValue + "'/>";
+    }
+    buttonPrev.disabled=false;
+  }
+
+  if (nextRowsNodes)
+  {
+    for (var i=0; i<RowsToShow; i++)
+    {
+      if (tbodyNext.childNodes[i]) tbodyNext.deleteRow(i);
+      var tr = tbodyNext.insertRow(i);
+      var tdPres = tr.insertCell(0);
+      tdPres.innerHTML = nextRowsNodes[i].childNodes[0].firstChild.nodeValue;
+      var tdYears = tr.insertCell(1);
+      tdYears.innerHTML = nextRowsNodes[i].childNodes[1].firstChild.nodeValue;
+      var tdImage = tr.insertCell(2);
+      tdImage.innerHTML = "<img src='Slides/" + nextRowsNodes[i].childNodes[2].firstChild.nodeValue + "'/>";
+    }
+    buttonNext.disabled=false;
+  }
+  CurRowsLoaded=false;
+}
+
+window.onload = init;
+</script>
+</head>
+
+<body>
+<h1>First 10 Presidents</h1>
+<table id="Table">
+  <thead>
+    <tr>
+      <th>President</th>
+      <th>Years</th>
+      <th>Image</th>
+    </tr>
+  </thead>
+  <tbody id="PrevRows" style="background-color:gray;"></tbody>
+  <tbody id="CurRows"></tbody>
+  <tbody id="NextRows" style="background-color:gray"></tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">
+        <form action="TableRows.html" onSubmit="return false" id="TableForm">
+          <input type="button" value="Previous" id="PrevButton" disabled="true"/>
+          Rows <span id="CurRowStart">1</span> - <span id="CurRowEnd">2</span> of <span id="TotalRowsNum"></span>
+          <input type="button" value="Next" id="NextButton"/>
+        </form>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</body>
+</html>

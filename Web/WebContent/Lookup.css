@@ -1,0 +1,21 @@
+body
+{
+	font-family:Georgia, "Times New Roman", Times, serif;
+	color:#000066;
+}
+
+h1, form
+{
+	font-size:16pt;
+}
+
+
+label {
+	display:block;
+	float:left;
+	width:120px;
+}
+
+div.FormRow {
+	clear:both;
+}

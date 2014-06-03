@@ -1,0 +1,53 @@
+<html>
+
+<head>
+<title>Lookup Form</title>
+<link href="Lookup.css" type="text/css" rel="stylesheet"/>
+<script language="javascript" src="prototype.js"></script>
+<script language="javascript">
+	function Lookup(FORM)
+	{
+		var year = FORM.Year.value;
+		if (isNaN(year) || year.length != 4)
+		{
+			alert("Please enter a valid year.");
+			return false;
+		}
+		
+		/*
+			Use prototype to make a call to Lookup.jsp and pass in the year as "year" using the get method.  The callback function should be LookupResults.
+		*/
+		new Ajax.Request("Lookup.jsp",
+      {
+        method: "get",
+        parameters: "year=" + year,
+        onComplete: LookupResults
+      });
+	}
+	
+	/*
+		Write the LookupResults() callback function.  It should write out the code returned from the server to the "LookupResults" div.
+	*/
+	function LookupResults(REQ)
+  	{
+    	var resultDiv = document.getElementById("LookupResults");
+    	resultDiv.innerHTML = REQ.responseText;
+  	}
+</script>
+</head>
+<body>
+
+<form id="LookupForm" onsubmit="Lookup(this); return false;">
+	<h1>Lookup Form</h1>
+	<p>Enter a year between 1789 and 1845 to find out who was president that year.</p>
+	<div class="FormRow">
+		<label for="Year">Year:</label>
+		<input type="text" size="5" name="Year"/>
+		<input type="submit" value="Lookup">
+	</div>
+	<hr/>
+	<div class="FormRow" id="LookupResults"></div>
+</form>
+
+</body>
+</html>
